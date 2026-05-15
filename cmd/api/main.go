@@ -28,54 +28,34 @@ func main() {
 	getRss := rss.NewNoticias()
 	noticiasRepo := repository.NewNoticiasRepo(mongoDB.Db)
 	noticiasService := service.NewNoticiasService(geminiClient, getRss, noticiasRepo, deepseekClient)
-	opinionesService := service.NewOpinionService(geminiClient, noticiasRepo, deepseekClient)
 	twitterClient := twitter.NewTwitter()
-	alertaNoticia := make(chan bool, 1)
+	opinionesService := service.NewOpinionService(geminiClient, noticiasRepo, deepseekClient, twitterClient)
 	go func() {
-		ticker := time.NewTicker(15 * time.Minute)
+		ticker := time.NewTicker(2 * time.Hour)
 		defer ticker.Stop()
-		log.Println("Obtener noticias al empezar el bot")
-		thereNews, _ := noticiasService.Get(c)
-		if thereNews {
-			alertaNoticia <- true
+		obtenerNoticias := func() {
+			log.Println("Actualizando noticias")
+			thereNews, err := noticiasService.Get(c)
+			if err != nil {
+				log.Printf("No se pudo obtener noticias: %v", err)
+			}
+			if !thereNews {
+				log.Println("No hay noticias nuevas")
+				return
+			}
+			log.Println("Opinando de noticias pendientes en la base de datos")
+			opinionesService.GenerateOpinion(c)
 		}
+		log.Println("Obteniendo noticias al empezar el bot")
+		obtenerNoticias()
 		for {
 			select {
 			case <-c.Done():
+				log.Println("Cerrando monitor de noticias")
 				return
 			case <-ticker.C:
-				log.Println("Obteniendo noticias")
-				thereNews, err := noticiasService.Get(c)
-				if err != nil {
-					log.Printf("No se pudo obtener noticias: %v", err)
-					continue
-				}
-				if thereNews {
-					select {
-					case alertaNoticia <- true:
-					default:
-					}
-				}
+				obtenerNoticias()
 			}
-		}
-	}()
-
-	go func() {
-		for range alertaNoticia {
-			log.Println("Opinando de noticias pendientes en la base de datos")
-			opinion, err := opinionesService.GenerateOpinion(c)
-			if err != nil {
-				log.Printf("Error al obtener opinion: %v", err)
-				continue
-			}
-			log.Printf("Opinion: %v\n", opinion)
-			postId, err := twitterClient.Post(c, opinion)
-			if err != nil {
-				log.Printf("Error al realizar un nuevo post: %v", err)
-				continue
-			}
-			log.Printf("Post realizado: %v\n", postId)
-			time.Sleep(1 * time.Minute)
 		}
 	}()
 	select {}

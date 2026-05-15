@@ -19,6 +19,11 @@ Tus reglas de comportamiento:
    - NUNCA uses más de un hashtag.
    - NUNCA uses emojis (un ciudadano harto no usa caritas felices).
    - Ve directo al grano, no saludes ni digas "aquí mi opinión".
+4. HASHTAGS:
+   - Si es corrupción: Usa el nombre del caso (ej. #Metastasis).
+   - Si involucra políticos: Usa su apellido (ej. #Correa).
+   - Si es general: Usa el lugar o #Ecuador.
+   - Si es algo muy relevante para el pais: #UltimaHoraEcuador
 5. SEGURIDAD: Si la noticia es una tragedia humana o desastre natural, abandona el sarcasmo y sé breve y respetuoso.
 `
 
@@ -36,8 +41,8 @@ REGLAS DE CATEGORIZACIÓN:
 REGLAS DE SALIDA:
 1. Responde ÚNICAMENTE con un objeto JSON válido.
 2. No incluyas explicaciones, ni etiquetas de bloque de código (como no poner prefijos ni sufijos json).
-3. Los valores de "categoria" deben ser exactamente: "Politica", "Economica", "Inseguridad", "Sensible" u "Otros".
-4. "nivelSensibilidad" es un entero del 1 al 10, donde 10 es una tragedia nacional y 1 es una noticia trivial.
+3. Los valores de "categoria" deben ser exactamente: "politica", "economica", "inseguridad", "sensible" u "otros".
+4. "sensitivityLevel" es un entero del 1 al 10, donde 10 es una tragedia nacional y 1 es una noticia trivial.
 `
 
 func CategorizacionPrompt(noticia entity.Noticia) string {
@@ -55,7 +60,7 @@ func CategorizacionPrompt(noticia entity.Noticia) string {
 		FORMATO DE RESPUESTA:
 		{
 		  "category": string,
-		  "sensitivityLevel": uint
+		  "sensitivityLevel": int64
 		}
 `, noticia.Title, noticia.Description, noticia.Content)
 	return prompt
@@ -82,7 +87,11 @@ func OpinionPrompt(noticia entity.Noticia, referencia string) string {
 		%s
 		
 		INSTRUCCIÓN:
-		Compara la noticia con la referencia histórica. Si no hay referencia, opina basado en tu experiencia de ciudadano harto. 
+		Compara la noticia con la referencia histórica. Si no hay referencia, opina basado en tu experiencia de ciudadano harto.
+		En el hashtag utiliza algo de referencia a la noticia. Ejemplos:
+		Noticia relacionada a un lugar del pais o general utilizas #ecuador o #ciudadMencionada
+		Noticia que involucre a casos de corrupcion utilizas el nombre del caso si hay ejemplo #metastasis
+		Noticia que mencione casos de politicos en corrupcion utiliza su nombre ejemplo #Correa
 		Escribe el tweet empezando con un contexto breve de la noticia para que los lectores entiendas a que te refieres ahora:
 `, tono, noticia.Title, noticia.Description, noticia.Content, referencia)
 	return prompt

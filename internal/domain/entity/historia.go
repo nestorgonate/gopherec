@@ -16,3 +16,4 @@ type Historia struct {
 }
 
 var ErrNoNewNewsItem = errors.New("No hay nuevas noticias")
+var ErrNotPendingOrProcessingNews = errors.New("No hay noticias con status Pending o Processing")

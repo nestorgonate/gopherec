@@ -10,10 +10,10 @@ import (
 type StatusEnum string
 
 const (
-	Pending   StatusEnum = "Pending"
-	Rejected  StatusEnum = "Rejected"
-	Approved  StatusEnum = "Approved"
-	Published StatusEnum = "Published"
+	Pending    StatusEnum = "pending"
+	Rejected   StatusEnum = "rejected"
+	Processing StatusEnum = "processing"
+	Published  StatusEnum = "published"
 )
 
 type Noticia struct {
@@ -24,7 +24,7 @@ type Noticia struct {
 	Link             string             `bson:"link" json:"link"`
 	Category         Categoria          `bson:"category" json:"category"`
 	Status           StatusEnum         `bson:"status" json:"status"`
-	SensitivityLevel int                `bson:"sensitivityLevel" json:"sensitivityLevel"`
+	SensitivityLevel int64              `bson:"sensitivityLevel" json:"sensitivityLevel"`
 	Published        time.Time          `bson:"published" json:"published"`
 }
 

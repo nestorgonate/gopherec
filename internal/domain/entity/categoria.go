@@ -3,14 +3,14 @@ package entity
 type Categoria string
 
 const (
-	Politica    Categoria = "Politica"
-	Economica   Categoria = "Economica"
-	Inseguridad Categoria = "Inseguridad"
-	Sensible    Categoria = "Sensible"
-	Otros       Categoria = "Otros"
+	Politica    Categoria = "politica"
+	Economia    Categoria = "economia"
+	Inseguridad Categoria = "inseguridad"
+	Sensible    Categoria = "sensible"
+	Otros       Categoria = "otros"
 )
 
 type Clasificacion struct {
 	Category         Categoria `bson:"category" json:"category"`
-	SensitivityLevel int       `bson:"sensitivityLevel" json:"sensitivityLevel"`
+	SensitivityLevel int64     `bson:"sensitivityLevel" json:"sensitivityLevel"`
 }
