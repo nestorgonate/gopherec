@@ -1,0 +1,7 @@
+services:
+  gopherec:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - cmd/api/.env
